@@ -4,7 +4,9 @@ export default function Home() {
   return (
     <div>
       <h1>Home Page</h1>
-      <NavBar />
+      <div>
+        <NavBar />
+      </div>
       <Link href="/about">wow</Link>
     </div>
   );

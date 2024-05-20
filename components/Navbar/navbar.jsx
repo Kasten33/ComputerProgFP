@@ -1,9 +1,9 @@
 import Link from "next/link";
-import "./Navbar.scss";
+import styles from "./Navbar.module.scss";
 
 const NavBar = () => {
   return (
-    <div className="navbar">
+    <div className={styles.navbar}>
       <Link href="/">Home</Link>
       <Link href="/about">About</Link>
     </div>
