@@ -1,4 +1,11 @@
 .navbar {
-  height: 80px;
+  height: 40px;
   background-color: #333;
+
+  .item {
+    display: flex;
+    align-items: center;
+    font-size: 18px;
+    gap: 20px;
+  }
 }
