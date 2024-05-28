@@ -1,6 +1,7 @@
 import NavBar from "../components/Navbar/navbar.jsx";
 import Title from "../components/WritePage/compose.jsx";
 import Body from "../components/WritePage/compose.jsx";
+import Book from "./models/book.js";
 
 export default function Chapter() {
   return (
@@ -8,9 +9,7 @@ export default function Chapter() {
       <div>
         <NavBar />
       </div>
-      <h1>
-        <Title />
-      </h1>
+      <h1></h1>
       <p>
         <Body />
       </p>

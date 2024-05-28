@@ -1,4 +1,3 @@
-import Link from "next/link";
 import NavBar from "../components/Navbar/navbar.jsx";
 import Search from "../components/Search/search.jsx";
 
