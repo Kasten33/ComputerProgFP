@@ -7,7 +7,7 @@ export default function Write() {
       <div>
         <NavBar />
       </div>
-      <p>Coming soon</p>
+      <p></p>
     </div>
   );
 }
