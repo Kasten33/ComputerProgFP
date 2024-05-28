@@ -1,17 +1,36 @@
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import NavBar from "../components/Navbar/navbar.jsx";
-import Title from "../components/WritePage/compose.jsx";
-import Body from "../components/WritePage/compose.jsx";
-import Book from "./models/book.js";
+import Chap from "../components/Chapter/chapter.jsx";
 
 export default function Chapter() {
+  const [book, setBook] = useState(null);
+
+  useEffect(() => {
+    const fetchBook = async () => {
+      try {
+        const response = await axios.get("/api/book"); // replace with your API endpoint
+        setBook(response.data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchBook();
+  }, []);
+
+  if (!book) {
+    return "Loading...";
+  }
+
   return (
     <div>
       <div>
         <NavBar />
       </div>
-      <h1></h1>
+      <h1>{book.title}</h1>
       <p>
-        <Body />
+        <Chap />
       </p>
       <br />
       <div>
