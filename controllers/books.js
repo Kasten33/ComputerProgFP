@@ -43,7 +43,7 @@ const deleteBook = async (req, res) => {
       console.log(`${req.user.name} deleted book ${deletedBook}`);
       res.json(`Removed ${deletedBook.title}`);
     } else {
-      throw new Error(`You can not delete someone elses favorite book`);
+      throw new Error(`You can not delete someone elses book`);
     }
   }
 };
@@ -54,7 +54,7 @@ const saveBook = async (req, res) => {
   const book = await Book.findOne({ ISBN: bookToSave.ISBN });
   console.log(book);
   if (!book) {
-    throw new Error("Oopsie Daisy");
+    throw new Error("Unable to find book");
   }
   const user = await User.findById({ _id: req.user.userID });
   if (!user) {
@@ -75,7 +75,7 @@ const removeBook = async (req, res) => {
   const book = await Book.findOne({ ISBN: bookToRemove.ISBN });
   console.log(book);
   if (!book) {
-    throw new Error("Oopsie Daisy");
+    throw new Error("Unable to find book");
   }
   //Get user
   const user = await User.findById(bookToRemove.userID);
@@ -117,7 +117,7 @@ const toggleHeart = async (req, res) => {
   res.json(responseMessage);
 };
 
-const getAllUserCreatedFromArray = async (req, res) => {
+const getAllUserCreated = async (req, res) => {
   const user = await User.findById(req.user.userID);
   if (!user) {
     throw new Error("Sumin done did messed up guy");
@@ -129,7 +129,7 @@ const getAllUserCreatedFromArray = async (req, res) => {
       return id.toString();
     })
     .forEach(async (id, index, idArray) => {
-      const book = await getBookFromId(id);
+      const book = await getBookId(id);
       books.push(book);
       counter++;
       if (counter === idArray.length) {
@@ -147,7 +147,7 @@ const getAllUserCreatedFromArray = async (req, res) => {
     }
   };
 };
-const getAllUserSavedFromArray = async (req, res) => {
+const getAllUserSaved = async (req, res) => {
   const user = await User.findById(req.user.userID);
   if (!user) {
     throw new Error("Sumin done did messed up guy");
@@ -159,7 +159,7 @@ const getAllUserSavedFromArray = async (req, res) => {
       return id.toString();
     })
     .forEach(async (id, index, idArray) => {
-      const book = await getBookFromId(id);
+      const book = await getBookId(id);
       books.push(book);
       counter++;
       if (counter === idArray.length) {
@@ -177,7 +177,7 @@ const getAllUserSavedFromArray = async (req, res) => {
     }
   };
 };
-const getBookFromId = async (bookId) => {
+const getBookId = async (bookId) => {
   const book = await Book.findOne({ _id: bookId });
   if (!book) {
     throw new Error("Could not find book");
@@ -245,8 +245,8 @@ module.exports = {
   deleteBook,
   getOneBook,
   getAllBooks,
-  getAllUserCreatedFromArray,
-  getAllUserSavedFromArray,
+  getAllUserCreated,
+  getAllUserSaved,
   addComment,
   deleteComment,
 };
