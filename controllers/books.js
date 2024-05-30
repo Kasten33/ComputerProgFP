@@ -4,14 +4,14 @@ const User = require("../models/user");
 const addBook = async (req, res) => {
   const newBook = {
     title: req.body.title,
+    body: req.body.body,
     author: req.body.author,
-    genre: req.body.genre,
     createdBy: req.user.userID,
-    ISBN: req.body.ISBN,
+    CN: req.body.CN,
   };
   const book = await Book.create(newBook);
   if (!book) {
-    throw new Error("Oopsie Daisy");
+    throw new Error("Incorrect");
   }
   console.log("bookId:", book.id);
 
@@ -49,9 +49,9 @@ const deleteBook = async (req, res) => {
 };
 const saveBook = async (req, res) => {
   const bookToSave = {
-    ISBN: req.body.ISBN,
+    CN: req.body.CN,
   };
-  const book = await Book.findOne({ ISBN: bookToSave.ISBN });
+  const book = await Book.findOne({ CN: bookToSave.CN });
   console.log(book);
   if (!book) {
     throw new Error("Unable to find book");
@@ -69,10 +69,10 @@ const saveBook = async (req, res) => {
 const removeBook = async (req, res) => {
   const bookToRemove = {
     userID: req.user.userID,
-    ISBN: req.body.ISBN,
+    CN: req.body.CN,
   };
   //Get Book
-  const book = await Book.findOne({ ISBN: bookToRemove.ISBN });
+  const book = await Book.findOne({ CN: bookToRemove.CN });
   console.log(book);
   if (!book) {
     throw new Error("Unable to find book");
@@ -90,9 +90,9 @@ const removeBook = async (req, res) => {
 };
 const getOneBook = async (req, res) => {
   const requestData = {
-    ISBN: req.body.ISBN,
+    CN: req.body.CN,
   };
-  const book = await Book.findOne({ ISBN: requestData.ISBN });
+  const book = await Book.findOne({ CN: requestData.CN });
   if (!book) {
     throw new Error("Could not find that book");
   }
@@ -101,10 +101,10 @@ const getOneBook = async (req, res) => {
 const toggleHeart = async (req, res) => {
   const ids = {
     userID: req.user.userID,
-    ISBN: req.body.ISBN,
+    CN: req.body.CN,
   };
 
-  const book = await Book.findOne({ ISBN: ids.ISBN });
+  const book = await Book.findOne({ CN: ids.CN });
   if (!book) {
     throw new Error("Can not find that book");
   }
@@ -120,7 +120,7 @@ const toggleHeart = async (req, res) => {
 const getAllUserCreated = async (req, res) => {
   const user = await User.findById(req.user.userID);
   if (!user) {
-    throw new Error("Sumin done did messed up guy");
+    throw new Error("Incorrect user ID.");
   }
   let counter = 0;
   let books = [];
@@ -142,15 +142,15 @@ const getAllUserCreated = async (req, res) => {
         res.status(200).json({ books, count: books.length });
       }
     } catch (error) {
-      console.log("Mission Failed. We'll get'em next time.");
-      throw new Error("Uh oh..");
+      console.log("Bad Request. get good.");
+      throw new Error("Error getting books.");
     }
   };
 };
 const getAllUserSaved = async (req, res) => {
   const user = await User.findById(req.user.userID);
   if (!user) {
-    throw new Error("Sumin done did messed up guy");
+    throw new Error("What are you doing?");
   }
   let counter = 0;
   let books = [];
@@ -172,8 +172,8 @@ const getAllUserSaved = async (req, res) => {
         res.status(200).json({ books, count: books.length });
       }
     } catch (error) {
-      console.log("Mission Failed. We'll get'em next time.");
-      throw new Error("Uh oh..");
+      console.log("failure... Continue?");
+      throw new Error("H O W");
     }
   };
 };
@@ -189,53 +189,6 @@ const getAllBooks = async (req, res) => {
   const allBooks = await Book.find();
   res.status(200).json({ allBooks, count: allBooks.length });
 };
-const addComment = async (req, res) => {
-  const commentData = {
-    ISBN: req.body.ISBN,
-    userID: req.user.userID,
-    comment: req.body.comment,
-  };
-  console.log(commentData);
-  const user = await User.findById(req.user.userID);
-  if (!user) {
-    throw new Error("Can not find that user");
-  }
-  let username = user.getName();
-  const book = await Book.findOne({ ISBN: commentData.ISBN });
-  if (!book) {
-    throw new Error("Can not find that book");
-  }
-  const commentAdded = book.addComment(
-    commentData.userID,
-    username,
-    commentData.comment
-  );
-  if (commentAdded) {
-    res.json(commentAdded);
-  }
-};
-const deleteComment = async (req, res) => {
-  const commentData = {
-    ISBN: req.body.ISBN,
-    commentID: req.body.commentID,
-    userID: req.user.userID,
-  };
-  console.log(commentData);
-
-  const book = await Book.findOne({ ISBN: commentData.ISBN });
-  if (!book) {
-    throw new Error("Can not find that book");
-  }
-  const commentDeleted = book.deleteComment(
-    //For Authentication
-    commentData.userID,
-    //For Targeting
-    commentData.commentID
-  );
-  if (commentDeleted) {
-    res.json(commentDeleted);
-  }
-};
 
 module.exports = {
   addBook,
@@ -247,6 +200,4 @@ module.exports = {
   getAllBooks,
   getAllUserCreated,
   getAllUserSaved,
-  addComment,
-  deleteComment,
 };
