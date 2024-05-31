@@ -1,11 +1,11 @@
-const User = require("../models/user");
+const User = require("../../models/user");
 
 //Import Errors
-const { BadRequest, NotFound, AuthorizationError } = require("../errors");
+const { BadRequest, NotFound, AuthorizationError } = require("../../errors");
 
 const register = async (req, res) => {
   const newUser = {
-    username: req.body.username,
+    userName: req.body.username,
     email: req.body.email,
     password: req.body.password,
   };
@@ -20,7 +20,7 @@ const register = async (req, res) => {
     res.status(500).json({ error: "User not added" });
   }
 
-  if (!newUser.username || !newUser.password) {
+  if (!newUser.userName || !newUser.password) {
     throw new Error("Nope");
   }
   const user = await User.create(newUser);
@@ -28,8 +28,8 @@ const register = async (req, res) => {
     throw new Error("No User in DB");
   }
   const token = user.createJWT();
-  console.log(`Welcome ${newUser.username}`);
-  res.json({ user: { name: user.username }, token });
+  console.log(`Welcome ${newUser.userName}`);
+  res.json({ user: { name: user.userName }, token });
 };
 
 const login = async (req, res) => {
@@ -52,8 +52,8 @@ const login = async (req, res) => {
     throw new AuthorizationError("Denied access");
   }
   const token = user.createJWT();
-  res.status(200).json({ user: { name: user.username }, token });
-  console.log(`Hello ${user.username}`);
+  res.status(200).json({ user: { name: user.userName }, token });
+  console.log(`Hello ${user.userName}`);
 };
 
 module.exports = { register, login };
