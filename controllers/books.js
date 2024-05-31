@@ -22,7 +22,30 @@ const addBook = async (req, res) => {
     );
   }
   user.saveBook(book.id, true);
-  console.log(`${user.username} added the book ${newBook.title}`);
+  console.log(`${user.userName} added the book ${newBook.title}`);
+  res.json(book);
+};
+const updateBook = async (req, res) => {
+  const bookId = req.params.id; // assuming the book ID is passed as a URL parameter
+  const updatedFields = {
+    title: req.body.title,
+    body: req.body.body,
+    author: req.body.author,
+  };
+
+  // Remove undefined fields
+  Object.keys(updatedFields).forEach((key) =>
+    updatedFields[key] === undefined ? delete updatedFields[key] : {}
+  );
+
+  const book = await Book.findByIdAndUpdate(bookId, updatedFields, {
+    new: true,
+  }); // { new: true } option returns the updated document
+
+  if (!book) {
+    throw new Error(`No book found with id: ${bookId}`);
+  }
+
   res.json(book);
 };
 const deleteBook = async (req, res) => {
@@ -63,7 +86,7 @@ const saveBook = async (req, res) => {
     );
   }
   user.saveBook(book._id, false);
-  console.log(`${user.username} saved ${book.title}`);
+  console.log(`${user.userName} saved ${book.title}`);
   res.json(book);
 };
 const removeBook = async (req, res) => {
@@ -192,6 +215,7 @@ const getAllBooks = async (req, res) => {
 
 module.exports = {
   addBook,
+  updateBook,
   saveBook,
   removeBook,
   toggleHeart,

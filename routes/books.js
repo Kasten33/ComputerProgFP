@@ -6,6 +6,7 @@ const {
   getAllBooks,
   getAllUserCreated,
   getAllUserSaved,
+  updateBook,
   saveBook,
   removeBook,
   toggleHeart,
@@ -21,5 +22,6 @@ router.post("/saveBook", saveBook);
 router.post("/removeBook", removeBook);
 router.post("/toggleHeart", toggleHeart);
 router.delete("/delete", deleteBook);
+router.patch("/books/:id", updateBook);
 
 module.exports = router;

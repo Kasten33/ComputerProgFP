@@ -1,28 +1,70 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router";
+import { addBook } from "./path-to-your-file"; // replace with the actual path to your file
 
-const Title = () => {
-  const [title, setTitle] = useState("");
+export default function compose() {
+  const [form, setForm] = useState({
+    title: "",
+    body: "",
+  });
+  const navigate = useNavigate();
 
-  return (
-    <input
-      type="text"
-      placeholder="Title"
-      value={title}
-      onChange={(e) => setTitle(e.target.value)}
-    />
-  );
-};
+  function updateForm(value) {
+    setForm((prev) => ({ ...prev, ...value }));
+  }
 
-const Body = () => {
-  const [body, setBody] = useState("");
+  async function onSubmit(e) {
+    e.preventDefault();
 
-  return (
-    <textarea
-      placeholder="Chapter Contents"
-      value={body}
-      onChange={(e) => setBody(e.target.value)}
-    />
-  );
-};
+    const newBook = { ...form };
 
-export { Title, Body };
+    try {
+      await addBook(newBook);
+      // navigate or reset form here if needed
+    } catch (error) {
+      window.alert(error);
+    }
+  }
+
+  // Rest of your component...
+}
+setForm({
+  title: "",
+  author: "",
+  date_published: "",
+  ongoing: "",
+});
+navigate("/write");
+
+return (
+  <div>
+    <h3>Create New Book</h3>
+    <form onSubmit={onSubmit}>
+      <div className="form-group">
+        <label htmlFor="title">Title</label>
+        <input
+          type="text"
+          className="form-control"
+          id="title"
+          value={form.title}
+          onChange={(e) => updateForm({ title: e.target.value })}
+        />
+      </div>
+
+      <div className="form-group">
+        <label htmlFor="author">Chapter Text</label>
+        <input
+          type="text-area"
+          className="form-control"
+          id="body"
+          value={form.body}
+          onChange={(e) => updateForm({ body: e.target.value })}
+        />
+      </div>
+
+      <div className="form-group" style={{ marginTop: "10px" }}>
+        <input type="submit" value="Create Book" className="btn btn-primary" />
+      </div>
+    </form>
+  </div>
+);
