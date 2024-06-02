@@ -6,5 +6,8 @@ const BookSchema = new Schema({
   body: { type: String, required: true },
   author: { type: String, required: true },
 });
-
-module.exports = mongoose.model("Book", BookSchema);
+const Book =
+  mongoose.models && mongoose.models.Book
+    ? mongoose.models.Book
+    : mongoose.model("Book", BookSchema);
+module.exports = Book;

@@ -25,16 +25,16 @@ export default function compose() {
       window.alert(error);
     }
   }
-
+  setForm({
+    title: "",
+    author: "",
+    date_published: "",
+    ongoing: "",
+  });
+  navigate("/write");
   // Rest of your component...
 }
-setForm({
-  title: "",
-  author: "",
-  date_published: "",
-  ongoing: "",
-});
-navigate("/write");
+
 /*
 return (
   <div>

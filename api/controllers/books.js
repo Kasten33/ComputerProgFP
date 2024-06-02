@@ -1,7 +1,10 @@
 const Book = require("../models/books");
-const User = require("../models/user");
+const axios = require("axios");
 
 const addBook = async (req, res) => {
+  const userReponse = await axios.get(`/api/models/user.js/${req.user.userID}`);
+  const User = userReponse.data;
+
   const newBook = {
     title: req.body.title,
     body: req.body.body,
@@ -109,7 +112,7 @@ const removeBook = async (req, res) => {
   //Check Array
   user.removeBook(book._id);
   //Remove if id is present
-  res.json(`Removed ${book._id} from saved favorties of user ${user.username}`);
+  res.json(`Removed ${book._id} from saved favorties of user ${user.userName}`);
 };
 const getOneBook = async (req, res) => {
   const requestData = {

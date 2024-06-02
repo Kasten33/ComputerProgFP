@@ -1,7 +1,11 @@
-const User = require("../../models/user");
+const User = require("../../api/models/user");
 
 //Import Errors
-const { BadRequest, NotFound, AuthorizationError } = require("../../errors");
+const {
+  BadRequest,
+  NotFound,
+  AuthorizationError,
+} = require("../../api/errors");
 
 const register = async (req, res) => {
   const newUser = {

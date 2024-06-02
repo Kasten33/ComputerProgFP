@@ -1,5 +1,5 @@
 const express = require("express");
-const mongodb = require("./DB/connect");
+const mongodb = require("./api/DB/connect.js");
 const cors = require("cors");
 
 const app = express();
@@ -12,7 +12,7 @@ app
     res.setHeader("Access-Control-Allow-Origin", "*");
     next();
   })
-  .use("/", require("./routes"));
+  .use("/", require("./api/routes"));
 
 mongodb.initDb((err) => {
   if (err) {
