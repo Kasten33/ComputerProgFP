@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { BrowserRouter as Router } from "react-router-dom";
 import Link from "next/link";
 import NavBar from "../components/Navbar/navbar.jsx";
 import Compose from "../components/WritePage/compose.jsx";
@@ -15,12 +16,14 @@ export default function Write() {
   };
 
   return (
-    <div>
+    <Router>
       <div>
-        <NavBar />
+        <div>
+          <NavBar />
+        </div>
+        <button onClick={handleComposeClick}>Compose</button>
+        {showCompose && <Compose onSubmit={handleSubmit} />}
       </div>
-      <button onClick={handleComposeClick}>Compose</button>
-      {showCompose && <Compose onSubmit={handleSubmit} />}
-    </div>
+    </Router>
   );
 }
