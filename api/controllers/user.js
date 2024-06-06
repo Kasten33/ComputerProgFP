@@ -1,3 +1,4 @@
+const mongodb = require("../DB/connect.js");
 const User = require("../../api/models/user");
 
 //Import Errors
@@ -7,10 +8,12 @@ const {
   AuthorizationError,
 } = require("../../api/errors");
 
+const test = (req, res) => {
+  res.status(200).json({ message: "Hello" });
+};
+
 const register = async (req, res) => {
   const { userName, email, password } = req.body;
-
-  // Validate user input
   if (!userName || !email || !password) {
     throw new BadRequest("Missing required fields: userName, email, password");
   }
@@ -20,14 +23,24 @@ const register = async (req, res) => {
     password,
   };
   try {
-    // Create the user in the database
-    const user = await User.create(newUser);
+    const response = await mongodb
+      .getDb()
+      .db()
+      .collection("Object-List.Users")
+      .insertOne(newUser);
+
+    if (!response.acknowledged) {
+      console.error(response.error || "User not added");
+      return res.status(500).json(response.error || "User not added");
+    }
+
+    console.log("Created user:", newUser);
 
     // Generate a JWT for the user
-    const token = user.createJWT();
+    const token = newUser.createJWT();
 
-    console.log(`Welcome ${userName}`);
-    res.json({ user: { name: user.userName }, token });
+    console.log(`Welcome ${newUser.userName}`);
+    res.status(201).json({ user: { name: newUser.userName }, token });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "User not added" });
@@ -58,4 +71,4 @@ const login = async (req, res) => {
   console.log(`Hello ${user.userName}`);
 };
 
-module.exports = { register, login };
+module.exports = { register, login, test };

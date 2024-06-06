@@ -15,8 +15,12 @@ export function SignUp() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("/register", { userName, email, password });
-      navigate("/login");
+      await axios.post("http://localhost:3001/register", {
+        userName,
+        email,
+        password,
+      });
+      navigate("http://localhost:3001/login");
     } catch (error) {
       console.error(error);
     }
