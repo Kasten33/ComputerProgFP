@@ -8,32 +8,30 @@ const {
 } = require("../../api/errors");
 
 const register = async (req, res) => {
+  const { userName, email, password } = req.body;
+
+  // Validate user input
+  if (!userName || !email || !password) {
+    throw new BadRequest("Missing required fields: userName, email, password");
+  }
   const newUser = {
-    userName: req.body.username,
-    email: req.body.email,
-    password: req.body.password,
+    userName,
+    email,
+    password,
   };
-  const response = await mongodb
-    .getDb()
-    .db()
-    .collection("users")
-    .insertOne(newUser);
-  if (response.acknowledged) {
-    console.log("User added to DB");
-  } else {
+  try {
+    // Create the user in the database
+    const user = await User.create(newUser);
+
+    // Generate a JWT for the user
+    const token = user.createJWT();
+
+    console.log(`Welcome ${userName}`);
+    res.json({ user: { name: user.userName }, token });
+  } catch (error) {
+    console.error(error);
     res.status(500).json({ error: "User not added" });
   }
-
-  if (!newUser.userName || !newUser.password) {
-    throw new Error("Nope");
-  }
-  const user = await User.create(newUser);
-  if (!user) {
-    throw new Error("No User in DB");
-  }
-  const token = user.createJWT();
-  console.log(`Welcome ${newUser.userName}`);
-  res.json({ user: { name: user.userName }, token });
 };
 
 const login = async (req, res) => {

@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { BrowserRouter as Router } from "react-router-dom";
-import Link from "next/link";
 import NavBar from "../components/Navbar/navbar.jsx";
 import Compose from "../components/WritePage/compose.jsx";
 
