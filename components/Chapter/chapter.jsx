@@ -23,7 +23,7 @@ const Chap = () => {
   }
 
   return (
-    <div className={styles.body}>
+    <div className={styles.chapterbody}>
       <h1>{book.body}</h1>
     </div>
   );

@@ -1,14 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { addBook } from "../../api/controllers/books";
-import e from "cors";
 
 export default function Compose() {
   const [form, setForm] = useState({
     title: "",
-    author: "",
-    date_published: "",
-    ongoing: "",
+    description: "",
   });
   const navigate = useNavigate();
 
@@ -23,11 +20,9 @@ export default function Compose() {
       await addBook(form);
       setForm({
         title: "",
-        author: "",
-        date_published: "",
-        ongoing: "",
+        description: "",
       });
-      navigate("/write");
+      navigate("/newChapter");
     } catch (error) {
       window.alert(error);
     }
@@ -43,17 +38,10 @@ export default function Compose() {
         required
       />
       <input
-        name="author"
-        value={form.author}
+        name="decription"
+        value={form.description}
         onChange={updateForm}
-        placeholder="Author"
-        required
-      />
-      <input
-        name="body"
-        value={form.body}
-        onChange={updateForm}
-        placeholder="Body"
+        placeholder="Description"
         required
       />
       <button type="submit">Submit</button>

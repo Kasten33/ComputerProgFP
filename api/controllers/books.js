@@ -7,10 +7,9 @@ const addBook = async (req, res) => {
 
   const newBook = {
     title: req.body.title,
-    body: req.body.body,
-    author: req.body.author,
-    createdBy: req.user.userID,
-    CN: req.body.CN,
+    description: req.body.description,
+    completed: false,
+    chapters: [],
   };
   const book = await Book.create(newBook);
   if (!book) {
@@ -25,15 +24,14 @@ const addBook = async (req, res) => {
     );
   }
   user.saveBook(book.id, true);
-  console.log(`${user.userName} added the book ${newBook.title}`);
+  console.log(`${user.userName} Created Book: ${newBook.title}`);
   res.json(book);
 };
 const updateBook = async (req, res) => {
   const bookId = req.params.id; // assuming the book ID is passed as a URL parameter
   const updatedFields = {
     title: req.body.title,
-    body: req.body.body,
-    author: req.body.author,
+    description: req.body.description,
   };
 
   // Remove undefined fields
@@ -66,7 +64,7 @@ const deleteBook = async (req, res) => {
       if (!deletedBook) {
         throw new Error("Deletion Unsuccessful");
       }
-      console.log(`${req.user.name} deleted book ${deletedBook}`);
+      console.log(`${req.user.name} deleted book ${deletedBook.title}`);
       res.json(`Removed ${deletedBook.title}`);
     } else {
       throw new Error(`You can not delete someone elses book`);
@@ -74,141 +72,39 @@ const deleteBook = async (req, res) => {
   }
 };
 const saveBook = async (req, res) => {
-  const bookToSave = {
-    CN: req.body.CN,
-  };
-  const book = await Book.findOne({ CN: bookToSave.CN });
-  console.log(book);
-  if (!book) {
-    throw new Error("Unable to find book");
+  try {
+    const user = await User.findById(req.user.userID);
+    if (!user) {
+      return res
+        .status(401)
+        .json({ error: `User not found with ID ${req.user.userID}` });
+    }
+
+    const book = await Book.findOne({ _id: req.body._id });
+    if (!book) {
+      return res.status(404).json({ error: "Unable to find book" });
+    }
+
+    const saveResult = await user.saveBook(book._id, false);
+    if (!saveResult) {
+      return res.status(500).json({ error: "Failed to save book" });
+    }
+
+    console.log(`${user.userName} saved ${book.title}`);
+    res.json(book);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
-  const user = await User.findById({ _id: req.user.userID });
-  if (!user) {
-    throw new Error(
-      `Bad Authentication while updating user ${req.user.userID}`
-    );
-  }
-  user.saveBook(book._id, false);
-  console.log(`${user.userName} saved ${book.title}`);
-  res.json(book);
-};
-const removeBook = async (req, res) => {
-  const bookToRemove = {
-    userID: req.user.userID,
-    CN: req.body.CN,
-  };
-  //Get Book
-  const book = await Book.findOne({ CN: bookToRemove.CN });
-  console.log(book);
-  if (!book) {
-    throw new Error("Unable to find book");
-  }
-  //Get user
-  const user = await User.findById(bookToRemove.userID);
-  console.log(user);
-  if (!user) {
-    throw new Error("Unable to find user");
-  }
-  //Check Array
-  user.removeBook(book._id);
-  //Remove if id is present
-  res.json(`Removed ${book._id} from saved favorties of user ${user.userName}`);
 };
 const getOneBook = async (req, res) => {
   const requestData = {
-    CN: req.body.CN,
+    _id: req.body._id,
   };
-  const book = await Book.findOne({ CN: requestData.CN });
+  const book = await Book.findOne({ _id: requestData._id });
   if (!book) {
     throw new Error("Could not find that book");
   }
   res.json(book);
-};
-const toggleHeart = async (req, res) => {
-  const ids = {
-    userID: req.user.userID,
-    CN: req.body.CN,
-  };
-
-  const book = await Book.findOne({ CN: ids.CN });
-  if (!book) {
-    throw new Error("Can not find that book");
-  }
-
-  const user = await User.findById(ids.userID);
-  if (!user) {
-    throw new Error("Can not find that user");
-  }
-  const responseMessage = await user.toggleSaved(book._id);
-  res.json(responseMessage);
-};
-
-const getAllUserCreated = async (req, res) => {
-  const user = await User.findById(req.user.userID);
-  if (!user) {
-    throw new Error("Incorrect user ID.");
-  }
-  let counter = 0;
-  let books = [];
-  let ids = user.createdFavorites
-    .map((id) => {
-      return id.toString();
-    })
-    .forEach(async (id, index, idArray) => {
-      const book = await getBookId(id);
-      books.push(book);
-      counter++;
-      if (counter === idArray.length) {
-        checkOut(books);
-      }
-    });
-  const checkOut = (books) => {
-    try {
-      if (books) {
-        res.status(200).json({ books, count: books.length });
-      }
-    } catch (error) {
-      console.log("Bad Request. get good.");
-      throw new Error("Error getting books.");
-    }
-  };
-};
-const getAllUserSaved = async (req, res) => {
-  const user = await User.findById(req.user.userID);
-  if (!user) {
-    throw new Error("What are you doing?");
-  }
-  let counter = 0;
-  let books = [];
-  let ids = user.savedFavorites
-    .map((id) => {
-      return id.toString();
-    })
-    .forEach(async (id, index, idArray) => {
-      const book = await getBookId(id);
-      books.push(book);
-      counter++;
-      if (counter === idArray.length) {
-        checkOut(books);
-      }
-    });
-  const checkOut = (books) => {
-    try {
-      if (books) {
-        res.status(200).json({ books, count: books.length });
-      }
-    } catch (error) {
-      console.log("failure... Continue?");
-      throw new Error("H O W");
-    }
-  };
-};
-const getBookId = async (bookId) => {
-  const book = await Book.findOne({ _id: bookId });
-  if (!book) {
-    throw new Error("Could not find book");
-  }
-  return book;
 };
 
 const getAllBooks = async (req, res) => {
@@ -220,11 +116,7 @@ module.exports = {
   addBook,
   updateBook,
   saveBook,
-  removeBook,
-  toggleHeart,
   deleteBook,
   getOneBook,
   getAllBooks,
-  getAllUserCreated,
-  getAllUserSaved,
 };

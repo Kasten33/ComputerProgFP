@@ -1,5 +1,5 @@
 const mongodb = require("../DB/connect.js");
-const User = require("../../api/models/user");
+const User = require("../../api/models/user.js");
 
 //Import Errors
 const {
