@@ -5,15 +5,22 @@ const {
   deleteBook,
   getAllBooks,
   updateBook,
-  saveBook,
   getOneBook,
 } = require("../controllers/books");
 
-router.get("/one/:id", getOneBook);
-router.get("/all", getAllBooks);
-router.post("/addBook", addBook);
-router.post("/saveBook", saveBook);
-router.delete("/delete", deleteBook);
-router.patch("/books/:id", updateBook);
+// Route to get a specific book by ID
+router.get("/:id", getOneBook);
+
+// Route to get all books
+router.get("/", getAllBooks);
+
+// Route to add a new book
+router.post("/", addBook);
+
+// Route to delete a book by ID
+router.delete("/:id", deleteBook);
+
+// Route to update a book by ID
+router.patch("/:id", updateBook);
 
 module.exports = router;
