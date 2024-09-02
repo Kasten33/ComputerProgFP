@@ -1,32 +1,47 @@
 const Book = require("../models/books");
-const axios = require("axios");
+const User = require("../models/user");
+const mongodb = require('../DB/connect');
+const mongoose = require('mongoose');
 
 const addBook = async (req, res) => {
-  const userReponse = await axios.get(`/api/models/user.js/${req.user.userID}`);
-  const User = userReponse.data;
-
-  const newBook = {
+  try {
+   // Create a new book object
+   const newBook = {
     title: req.body.title,
     description: req.body.description,
     completed: false,
     chapters: [],
   };
-  const book = await Book.create(newBook);
-  if (!book) {
-    throw new Error("Incorrect");
-  }
-  console.log("bookId:", book.id);
 
-  const user = await User.findById({ _id: req.user.userID });
-  if (!user) {
-    throw new Error(
-      `Bad Authentication while updating user ${req.user.userID}`
-    );
+  // Insert the new book into the books collection
+  const bookResult = await mongodb.getDb().db().collection('books').insertOne(newBook);
+  if (!bookResult.insertedId) {
+    throw new Error('Failed to create book');
   }
-  user.saveBook(book.id, true);
-  console.log(`${user.userName} Created Book: ${newBook.title}`);
-  res.json(book);
+
+  // Find the user by their ID
+  const userId = new mongoose.Types.ObjectId(req.user._id); // Assuming req.user._id is set by the auth middleware
+  const user = await mongodb.getDb().db().collection('users').findOne({ _id: userId });
+  if (!user) {
+    return res.status(404).send('User not found');
+  }
+
+  // Add the book's ID to the user's list of books
+  const updatedUser = await mongodb.getDb().db().collection('users').updateOne(
+    { _id: userId },
+    { $push: { books: bookResult.insertedId } }
+  );
+
+  if (!updatedUser.modifiedCount) {
+    throw new Error('Failed to update user with new book');
+  }
+
+  res.status(200).send({ message: 'Book added successfully', book: newBook });
+} catch (error) {
+  res.status(500).send({ error: error.message });
+}
 };
+
 const updateBook = async (req, res) => {
   const bookId = req.params.id; // assuming the book ID is passed as a URL parameter
   const updatedFields = {
@@ -109,6 +124,8 @@ const getOneBook = async (req, res) => {
 
 const getAllBooks = async (req, res) => {
   const allBooks = await Book.find();
+  console.log(allBooks);
+  
   res.status(200).json({ allBooks, count: allBooks.length });
 };
 

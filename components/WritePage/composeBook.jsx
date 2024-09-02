@@ -1,13 +1,15 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { addBook } from "../../api/controllers/books";
+import axios from "axios";
+import { useRouter } from "next/router";
 
-export default function Compose() {
+axios.defaults.baseURL="http://localhost:3001";
+
+const ComposeB = () => {
   const [form, setForm] = useState({
     title: "",
     description: "",
   });
-  const navigate = useNavigate();
+  const router = useRouter();
 
   function updateForm(e) {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -17,34 +19,38 @@ export default function Compose() {
     e.preventDefault();
 
     try {
-      await addBook(form);
+      await axios.post("http://localhost:3001/addBook", form);
       setForm({
         title: "",
         description: "",
       });
-      navigate("/newChapter");
+      router.push("/newChapter");
     } catch (error) {
       window.alert(error);
     }
   }
 
   return (
-    <form onSubmit={onSubmit}>
-      <input
-        name="title"
-        value={form.title}
-        onChange={updateForm}
-        placeholder="Title"
-        required
-      />
-      <input
-        name="decription"
-        value={form.description}
-        onChange={updateForm}
-        placeholder="Description"
-        required
-      />
-      <button type="submit">Submit</button>
-    </form>
+    <div>
+      <form onSubmit={onSubmit}>
+        <input
+          name="title"
+          value={form.title}
+          onChange={updateForm}
+          placeholder="Title"
+          required
+        />
+        <input
+          name="description"
+          value={form.description}
+          onChange={updateForm}
+          placeholder="Description"
+          required
+        />
+        <button type="submit">Submit</button>
+      </form>
+    </div>
   );
-}
+};
+
+export default ComposeB;

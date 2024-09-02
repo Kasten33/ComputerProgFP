@@ -9,7 +9,7 @@ const {
   getOneBook,
 } = require("../controllers/books");
 
-router.post("/one", getOneBook);
+router.get("/one/:id", getOneBook);
 router.get("/all", getAllBooks);
 router.post("/addBook", addBook);
 router.post("/saveBook", saveBook);

@@ -10,5 +10,5 @@ const BookSchema = new Schema({
 const Book =
   mongoose.models && mongoose.models.Book
     ? mongoose.models.Book
-    : mongoose.model("Book", BookSchema);
+    : mongoose.model("Books", BookSchema);
 module.exports = Book;

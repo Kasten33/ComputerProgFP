@@ -20,7 +20,7 @@ export function SignUp() {
         email,
         password,
       });
-      navigate("http://localhost:3001/login");
+      navigate("/login");
     } catch (error) {
       console.error(error);
     }
@@ -63,7 +63,7 @@ export function Login() {
     e.preventDefault();
     try {
       await axios.post("/login", { email, password });
-      navigate("/");
+      navigate("/user");
     } catch (error) {
       console.error(error);
     }

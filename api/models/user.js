@@ -17,6 +17,7 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  books: [{ type: mongoose.Schema.Types.ObjectId, ref: "Book" }],
 });
 
 UserSchema.pre("save", async function () {
@@ -51,4 +52,5 @@ UserSchema.methods.comparePassword = async function (canidatePassword) {
   return isMatch;
 };
 
-module.exports = mongoose.model("User", UserSchema);
+const User = mongoose.model("User", UserSchema);
+module.exports = User;
