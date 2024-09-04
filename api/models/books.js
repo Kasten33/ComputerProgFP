@@ -6,6 +6,7 @@ const BookSchema = new Schema({
   description: { type: String, required: true },
   completed: { type: Boolean, required: true },
   chapters: { type: Array, required: false },
+  type: { type: String, required: true },
 });
 const Book =
   mongoose.models && mongoose.models.Book

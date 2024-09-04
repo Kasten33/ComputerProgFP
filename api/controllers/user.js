@@ -17,28 +17,29 @@ const register = async (req, res) => {
   if (!userName || !email || !password) {
     throw new BadRequest("Missing required fields: userName, email, password");
   }
-  const newUser = {
-    userName,
-    email,
-    password,
+ 
+  try { 
+    const newUser = {
+    userName: req.body.userName,
+    email: req.body.email,
+    password: req.body.password,
+    type: "user",
   };
-  try {
     const response = await mongodb
       .getDb()
       .db()
-      .collection("Object-List.Users")
+      .collection("users")
       .insertOne(newUser);
 
-    if (!response.acknowledged) {
-      console.error(response.error || "User not added");
-      return res.status(500).json(response.error || "User not added");
-    }
+      if (response.acknowledged) {
+        res.status(201).json(response);
+      } else {
 
     console.log("Created user:", newUser);
-
-    // Generate a JWT for the user
     const token = newUser.createJWT();
-
+      }
+    // Generate a JWT for the user
+  
     console.log(`Welcome ${newUser.userName}`);
     res.status(201).json({ user: { name: newUser.userName }, token });
   } catch (error) {

@@ -8,6 +8,8 @@ const {
   getOneBook,
 } = require("../controllers/books");
 
+
+
 // Route to get a specific book by ID
 router.get("/:id", getOneBook);
 
@@ -15,12 +17,12 @@ router.get("/:id", getOneBook);
 router.get("/", getAllBooks);
 
 // Route to add a new book
-router.post("/", addBook);
+router.post("/create", addBook);
 
 // Route to delete a book by ID
-router.delete("/:id", deleteBook);
+router.delete("/delete/:id", deleteBook);
 
 // Route to update a book by ID
-router.patch("/:id", updateBook);
+router.patch("/update/:id", updateBook);
 
 module.exports = router;
