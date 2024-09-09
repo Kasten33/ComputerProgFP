@@ -8,25 +8,32 @@ const ComposeB = () => {
   const [form, setForm] = useState({
     title: "",
     description: "",
+    completed: false,
   });
   const router = useRouter();
 
   function updateForm(e) {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value, type, checked } = e.target;
+    setForm((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   }
 
   async function onSubmit(e) {
     e.preventDefault();
 
     try {
-      await axios.post("http://localhost:3001/addBook", form);
+      await axios.post("http://localhost:3001/books/create", form);
+       // Reset form fields
       setForm({
         title: "",
         description: "",
+        completed: false,
       });
-      router.push("/newChapter");
+    
     } catch (error) {
-      window.alert(error);
+      alert("Error creating book");
     }
   }
 
@@ -34,19 +41,28 @@ const ComposeB = () => {
     <div>
       <form onSubmit={onSubmit}>
         <input
+          type="text"
           name="title"
           value={form.title}
           onChange={updateForm}
           placeholder="Title"
           required
         />
-        <input
+        <textarea
+          type="text"
           name="description"
           value={form.description}
           onChange={updateForm}
           placeholder="Description"
           required
         />
+        <div>
+          <label>Completed</label>
+        <select name="completed" value={form.completed} onChange={updateForm}>
+          <option value={true}>Completed</option>
+          <option value={false}>Not Completed</option>
+        </select>
+        </div>
         <button type="submit">Submit</button>
       </form>
     </div>

@@ -9,7 +9,7 @@ export default function Chapter() {
   useEffect(() => {
     const fetchBook = async () => {
       try {
-        const response = await axios.get("/api/book"); // replace with your API endpoint
+        const response = await axios.get("/chapter"); // replace with your API endpoint
         setBook(response.data);
       } catch (err) {
         console.error(err);
