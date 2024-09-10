@@ -1,16 +1,16 @@
 const mongodb = require("../DB/connect.js");
-const User = require("../../api/models/user.js");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const User = require("../models/user.js");
+
+//chapters: id | Books:_id | Users:_id
 
 //Import Errors
 const {
   BadRequest,
   NotFound,
   AuthorizationError,
-} = require("../../api/errors");
-
-const test = (req, res) => {
-  res.status(200).json({ message: "Hello" });
-};
+} = require("../errors");
 
 const register = async (req, res) => {
   const { userName, email, password } = req.body;
@@ -19,12 +19,13 @@ const register = async (req, res) => {
   }
  
   try { 
-    const newUser = {
-    userName: req.body.userName,
-    email: req.body.email,
-    password: req.body.password,
-    type: "user",
-  };
+    // Create the newUser object using the Mongoose model
+    const newUser = new User({
+      userName,
+      email,
+      password,
+      type: "user",
+    });
     const response = await mongodb
       .getDb()
       .db()
@@ -32,44 +33,60 @@ const register = async (req, res) => {
       .insertOne(newUser);
 
       if (response.acknowledged) {
-        res.status(201).json(response);
+        const token = newUser.createJWT();
+
+        console.log("Created user:", newUser);
+        res.status(201).json({ user: { name: newUser.userName }, token });
       } else {
-
-    console.log("Created user:", newUser);
-    const token = newUser.createJWT();
+        res.status(500).json({ error: "User not added" });
       }
-    // Generate a JWT for the user
-  
-    console.log(`Welcome ${newUser.userName}`);
-    res.status(201).json({ user: { name: newUser.userName }, token });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "User not added" });
-  }
-};
-
-const login = async (req, res) => {
-  const loginInfo = {
-    email: req.body.email,
-    password: req.body.password,
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "User not added" });
+    }
   };
-  if (!loginInfo) {
-    //Recieved incomplete request
-    throw new BadRequest("Please provide credentials");
-  }
-  const user = await User.findOne({ email: loginInfo.email });
-  if (!user) {
-    //User does not exist
-    throw new NotFound("You dont exist");
-  }
-  const correctPassword = await user.comparePassword(loginInfo.password);
-  if (!correctPassword) {
-    //Incorrect password
-    throw new AuthorizationError("Denied access");
-  }
-  const token = user.createJWT();
-  res.status(200).json({ user: { name: user.userName }, token });
-  console.log(`Hello ${user.userName}`);
-};
 
-module.exports = { register, login, test };
+  const login = async (req, res) => {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      throw new BadRequest('Please provide credentials');
+    }
+  
+    try {
+      const user = await mongodb
+        .getDb()
+        .db()
+        .collection('users')
+        .findOne({ email });
+
+        console.log(user);
+  
+      if (!user) {
+        throw new AuthorizationError('User not found or password incorrect');
+      }
+  
+      const isPasswordCorrect = await bcrypt.compare(password, user.password);
+      if (!isPasswordCorrect) {
+        throw new AuthorizationError('User not found or password incorrect');
+      }
+  
+      const token = jwt.sign(
+        {
+          userID: user._id,
+          name: user.userName,
+        },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: process.env.JWT_LIFETIME,
+        }
+      );
+  
+      res.status(200).json({ user: { name: user.userName }, token });
+      console.log(`Hello ${user.userName}`);
+    } catch (error) {
+      console.error('Error during login:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  };
+
+module.exports = { register, login};

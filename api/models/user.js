@@ -18,23 +18,28 @@ const UserSchema = new mongoose.Schema({
     required: true,
   },
   books: [{ type: mongoose.Schema.Types.ObjectId, ref: "Book" }],
+  type: {
+    type: String,
+    required: true,
+  },
 });
 
-UserSchema.pre("save", async function () {
-  if (this.isNew) {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
+// Pre-save hook to hash the password before saving
+UserSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) {
+    return next();
   }
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+  next();
 });
 
-UserSchema.methods.getID = function () {
-  return this._id;
+// Method to compare passwords
+UserSchema.methods.comparePassword = async function (candidatePassword) {
+  return await bcrypt.compare(candidatePassword, this.password);
 };
 
-UserSchema.methods.getName = function () {
-  return this.username;
-};
-
+// Method to create JWT
 UserSchema.methods.createJWT = function () {
   return jwt.sign(
     {
@@ -46,10 +51,6 @@ UserSchema.methods.createJWT = function () {
       expiresIn: process.env.JWT_LIFETIME,
     }
   );
-};
-UserSchema.methods.comparePassword = async function (canidatePassword) {
-  const isMatch = await bcrypt.compare(canidatePassword, this.password);
-  return isMatch;
 };
 
 const User = mongoose.model("User", UserSchema);

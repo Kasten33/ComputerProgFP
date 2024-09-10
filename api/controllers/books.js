@@ -1,15 +1,37 @@
 const mongodb = require("../DB/connect");
 const { ObjectId } = require("mongodb");
 
+//Chapters: id | Books:_id | Users:_id
+
 const addBook = async (req, res) => {
+ 
+
   try {
+
+  const userId = req.body.userId;
+
+  // Validate userId
+  if (!ObjectId.isValid(userId)) {
+    return res.status(400).json({ message: "Invalid user ID format." });
+  }
+
+  const user = await mongodb
+    .getDb()
+    .db()
+    .collection("users")
+    .findOne({ _id: new ObjectId(userId) });
+
+  if (!user) {
+    return res.status(404).json({ message: "User not found." });
+  }
+
     const book = {
       title: req.body.title,
       description: req.body.description,
       completed: req.body.completed,
       chapters: req.body.chapters,
       type: "book",
-      userId: req.body.userId,
+      userId: new ObjectId(userId), // Ensure userId is stored as ObjectId
     };
     const response = await mongodb
       .getDb()
@@ -17,6 +39,7 @@ const addBook = async (req, res) => {
       .collection("books")
       .insertOne(book);
     if (response.acknowledged) {
+      console.log(userId);
       res.status(201).json(response);
     } else {
       res

@@ -1,7 +1,7 @@
 const mongodb = require("../DB/connect");
 const { ObjectId } = require("mongodb");
 
-//chapters: id Books:_id
+//chapters: id | Books:_id | Users:_id
 
 const addChapter = async (req, res) => {
     const bookId = req.params.bookId;
