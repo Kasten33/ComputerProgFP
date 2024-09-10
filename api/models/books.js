@@ -2,10 +2,9 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const ChapterSchema = new Schema({
-  _id : { type: Schema.Types.ObjectId, auto: true },
   chapTitle: { type: String, required: true },
   content: { type: String, required: true },
-});
+}, {_id : true });
 
 const BookSchema = new Schema({
   title: { type: String, required: true },
