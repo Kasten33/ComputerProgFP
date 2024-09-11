@@ -22,11 +22,19 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  tokens: [
+    {
+      token:{
+        type: String,
+        required: true
+      }
+    }
+  ]
 });
 
 // Pre-save hook to hash the password before saving
-UserSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) {
+UserSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) {
     return next();
   }
   const salt = await bcrypt.genSalt(10);

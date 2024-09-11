@@ -7,8 +7,15 @@ const addBook = async (req, res) => {
  
 
   try {
+    console.log('User:', req.user);
+    if (!req.user) {
+      return res.status(401).json({ message: "User not authenticated." });
+    }
 
-  const userId = req.body.userId;
+    const userId = req.user._id;
+    console.log('User ID:', userId);
+
+  
 
   // Validate userId
   if (!ObjectId.isValid(userId)) {
@@ -38,8 +45,8 @@ const addBook = async (req, res) => {
       .db()
       .collection("books")
       .insertOne(book);
+
     if (response.acknowledged) {
-      console.log(userId);
       res.status(201).json(response);
     } else {
       res
@@ -49,6 +56,7 @@ const addBook = async (req, res) => {
         );
     }
   } catch (error) {
+    console.error('Error in addBook:', error);
     res.status(500).json(error);
   }
 };

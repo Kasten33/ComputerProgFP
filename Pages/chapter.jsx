@@ -29,9 +29,9 @@ export default function Chapter() {
         <NavBar />
       </div>
       <h1>{book.title}</h1>
-      <p>
+      <div>
         <Chap />
-      </p>
+      </div>
       <br />
       <div>
         <button>Previous</button>

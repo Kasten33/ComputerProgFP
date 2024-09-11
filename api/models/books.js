@@ -12,6 +12,7 @@ const BookSchema = new Schema({
   completed: { type: Boolean, required: true },
   chapters: { type: [ChapterSchema], required: false },
   type: { type: String, required: true },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
 });
 const Book =
   mongoose.models && mongoose.models.Book

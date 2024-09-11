@@ -1,4 +1,5 @@
 import NavBar from "../components/Navbar/navbar.jsx";
+import HomeP from "../components/Home/Home.jsx";
 import Search from "../components/Search/search.jsx";
 
 export default function Home() {
@@ -13,7 +14,10 @@ export default function Home() {
       </div>
       <p>Welcome! Click on New or Search for books.</p>
       <br />
-      <p>Home page TB Developed </p>
+      <div> 
+        <HomeP />
+      </div>
+   
     </div>
   );
 }

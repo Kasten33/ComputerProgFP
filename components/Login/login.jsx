@@ -15,12 +15,12 @@ export function SignUp() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:3001/register", {
+      await axios.post("http://localhost:3001/user/register", {
         userName,
         email,
         password,
       });
-      navigate("/login");
+      navigate("/");
     } catch (error) {
       console.error(error);
     }
@@ -59,18 +59,25 @@ export function Login() {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("/login", { email, password });
-      navigate("/user");
+      const response = await axios.post('http://localhost:3001/user/login', { email, password });
+      const { token } = response.data;
+
+      // Store the token in localStorage
+      localStorage.setItem('token', token);
+
+      console.log('Login successful, token stored:', token);
+      navigate("/"); // Redirect to home or another page after login
     } catch (error) {
-      console.error(error);
+      console.error('Error logging in:', error);
+      alert('Login failed');
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleLogin}>
       <input
         type="email"
         value={email}
