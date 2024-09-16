@@ -10,7 +10,7 @@ const BookSchema = new Schema({
   title: { type: String, required: true },
   description: { type: String, required: true },
   completed: { type: Boolean, required: true },
-  chapters: { type: [ChapterSchema], required: false },
+  chapters: { type: [ChapterSchema], default: [], required: false },
   type: { type: String, required: true },
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
 });

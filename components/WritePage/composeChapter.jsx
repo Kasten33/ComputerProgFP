@@ -18,8 +18,12 @@ const ComposeC = ({ bookId }) => {
       const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-          await axios.post(`http://localhost:3001/books/${bookId}/add`, chapter);
+          console.log("Submitting chapter with bookId:", bookId); // Debugging log
+          console.log("Chapter data:", chapter); // Debugging log
+          
+          await axios.post(`http://localhost:3001/chapter/books/${bookId}/add`, chapter);
           alert("Chapter added successfully");
+          setChapter({ chapTitle: "", content: "" });
         } catch (error) {
           alert("Error adding chapter: " + error.message);
         }
@@ -34,7 +38,7 @@ const ComposeC = ({ bookId }) => {
             <label>Title:</label>
             <input
               type="text"
-              name="title"
+              name="chapTitle"
               value={chapter.chapTitle}
               onChange={handleChange}
             />

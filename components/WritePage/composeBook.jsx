@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { router } from "next/router";
 
-axios.defaults.baseURL="http://localhost:3001";
+axios.defaults.baseURL = "http://localhost:3001";
 
 const ComposeB = () => {
   const [form, setForm] = useState({
@@ -22,38 +23,54 @@ const ComposeB = () => {
     e.preventDefault();
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (!token) {
-        throw new Error('No token found. Please log in.');
+        throw new Error("No token found. Please log in.");
       }
-
-      await axios.post("http://localhost:3001/books/create", form, { // Ensure the URL is correct
+    
+      // Add chapters field initialized as an empty array
+      const newBook = {
+        ...form,
+        chapters: [] // Ensure chapters is an array
+      };
+    
+      const response = await axios.post("http://localhost:3001/books/create", newBook, {
+        // Ensure the URL is correct
         headers: {
-          'Authorization': `Bearer ${token}` // Ensure the Authorization header is set correctly
-        }
+          Authorization: `Bearer ${token}`, // Ensure the Authorization header is set correctly
+        },
       });
+      console.log("Book created successfully");
+      console.log("Book data:", response.data);
+      console.log(response)
 
+      const bookId = response.data.insertedId;
       // Reset form fields
       setForm({
         title: "",
         description: "",
         completed: false,
       });
-    
-    } catch (error)  {
-      console.error('Error creating book:', error); // Log the error for debugging
+
+      router.push({
+    pathname: '/newChapter',
+    query: { bookId: bookId }
+  });
+
+    } catch (error) {
+      console.error("Error creating book:", error); // Log the error for debugging
       if (error.response) {
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
-        console.error('Response data:', error.response.data);
-        console.error('Response status:', error.response.status);
-        console.error('Response headers:', error.response.headers);
+        console.error("Response data:", error.response.data);
+        console.error("Response status:", error.response.status);
+        console.error("Response headers:", error.response.headers);
       } else if (error.request) {
         // The request was made but no response was received
-        console.error('Request data:', error.request);
+        console.error("Request data:", error.request);
       } else {
         // Something happened in setting up the request that triggered an Error
-        console.error('Error message:', error.message);
+        console.error("Error message:", error.message);
       }
       alert("Error creating book");
     }
@@ -80,10 +97,10 @@ const ComposeB = () => {
         />
         <div>
           <label>Completed</label>
-        <select name="completed" value={form.completed} onChange={updateForm}>
-          <option value={true}>Completed</option>
-          <option value={false}>Not Completed</option>
-        </select>
+          <select name="completed" value={form.completed} onChange={updateForm}>
+            <option value={true}>Completed</option>
+            <option value={false}>Not Completed</option>
+          </select>
         </div>
         <button type="submit">Submit</button>
       </form>

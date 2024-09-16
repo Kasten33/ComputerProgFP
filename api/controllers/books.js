@@ -4,33 +4,29 @@ const { ObjectId } = require("mongodb");
 //Chapters: id | Books:_id | Users:_id
 
 const addBook = async (req, res) => {
- 
-
   try {
-    console.log('User:', req.user);
+    console.log("User:", req.user);
     if (!req.user) {
       return res.status(401).json({ message: "User not authenticated." });
     }
 
     const userId = req.user._id;
-    console.log('User ID:', userId);
+    console.log("User ID:", userId);
 
-  
+    // Validate userId
+    if (!ObjectId.isValid(userId)) {
+      return res.status(400).json({ message: "Invalid user ID format." });
+    }
 
-  // Validate userId
-  if (!ObjectId.isValid(userId)) {
-    return res.status(400).json({ message: "Invalid user ID format." });
-  }
+    const user = await mongodb
+      .getDb()
+      .db()
+      .collection("users")
+      .findOne({ _id: new ObjectId(userId) });
 
-  const user = await mongodb
-    .getDb()
-    .db()
-    .collection("users")
-    .findOne({ _id: new ObjectId(userId) });
-
-  if (!user) {
-    return res.status(404).json({ message: "User not found." });
-  }
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
 
     const book = {
       title: req.body.title,
@@ -47,16 +43,23 @@ const addBook = async (req, res) => {
       .insertOne(book);
 
     if (response.acknowledged) {
+      // Push the book ID to the user's books array
+      await mongodb
+        .getDb()
+        .db()
+        .collection("users")
+        .updateOne(
+          { _id: new ObjectId(userId) },
+          { $push: { books: response.insertedId } }
+        );
       res.status(201).json(response);
     } else {
       res
         .status(500)
-        .json(
-          response.error || "Error connecting to db while creating book"
-        );
+        .json(response.error || "Error connecting to db while creating book");
     }
   } catch (error) {
-    console.error('Error in addBook:', error);
+    console.error("Error in addBook:", error);
     res.status(500).json(error);
   }
 };
@@ -73,7 +76,7 @@ const updateBook = async (req, res) => {
       .getDb()
       .db()
       .collection("books")
-      .updateOne({ _id: bookId }, { $set: book});
+      .updateOne({ _id: bookId }, { $set: book });
     if (response.acknowledged) {
       res.status(204).json(response);
       console.log("Book updated successfully");
@@ -95,7 +98,7 @@ const deleteBook = async (req, res) => {
 
     // Validate bookId
     if (!ObjectId.isValid(bookId)) {
-      return res.status(400).json({ error: 'Invalid book ID' });
+      return res.status(400).json({ error: "Invalid book ID" });
     }
 
     const response = await mongodb
@@ -104,15 +107,29 @@ const deleteBook = async (req, res) => {
       .collection("books")
       .deleteOne({ _id: new ObjectId(bookId) });
 
-    console.log(response);
+    const result = await mongodb
+      .getDb()
+      .db()
+      .collection("users")
+      .updateOne(
+        { books: new ObjectId(bookId) },
+        { $pull: { books: new ObjectId(bookId) } }
+      );
 
-    if (response.acknowledged && response.deletedCount > 0) {
-      res.status(200).json({ message: 'Book deleted successfully' });
+    console.log(response);
+    console.log(result);
+
+    if (
+      response.acknowledged &&
+      response.deletedCount > 0 &&
+      result.acknowledged
+    ) {
+      res.status(200).json({ message: "Book deleted successfully" });
     } else {
-      res.status(404).json({ message: 'Book not found' });
+      res.status(404).json({ message: "Book not found" });
     }
   } catch (error) {
-    res.status(500).json({ message: 'Error connecting to db', error });
+    res.status(500).json({ message: "Error connecting to db", error });
   }
 };
 
@@ -122,7 +139,7 @@ const getOneBook = async (req, res) => {
 
     // Validate bookId
     if (!ObjectId.isValid(bookId)) {
-      return res.status(400).send({ error: 'Invalid book ID' });
+      return res.status(400).send({ error: "Invalid book ID" });
     }
 
     const result = await mongodb
@@ -132,13 +149,15 @@ const getOneBook = async (req, res) => {
       .findOne({ _id: new ObjectId(bookId) }); // Convert bookId to ObjectId
 
     if (!result) {
-      return res.status(404).send({ message: 'Book not found' });
+      return res.status(404).send({ message: "Book not found" });
     }
 
     res.setHeader("Content-Type", "application/json");
     res.status(200).json(result);
   } catch (error) {
-    res.status(500).json({ error: 'An error occurred while fetching the book' });
+    res
+      .status(500)
+      .json({ error: "An error occurred while fetching the book" });
   }
 };
 

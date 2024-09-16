@@ -7,6 +7,11 @@ const addChapter = async (req, res) => {
     const bookId = req.params.bookId;
 
     try {
+
+      // Validate bookId
+    if (!ObjectId.isValid(bookId)) {
+      throw new Error("Invalid bookId format");
+  }
         const chapter = {
             id: new ObjectId(),
             chapTitle: req.body.chapTitle,

@@ -72,9 +72,9 @@ const login = async (req, res) => {
       throw new AuthorizationError("User not found or password incorrect");
     }
 
-    console.log("User object:", user);
-    console.log("Provided password:", password);
-    console.log("Stored password:", user.password);
+    //console.log("User object:", user);
+    //console.log("Provided password:", password);
+    //console.log("Stored password:", user.password);
 
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
     if (!isPasswordCorrect) {
@@ -83,7 +83,7 @@ const login = async (req, res) => {
 
     // Generate JWT token
     const token = jwt.sign({ userID: user._id.toString(), name: user.name }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    console.log('Generated Token:', token);
+    //console.log('Generated Token:', token);
 
     // Add the token to the user's tokens array
     await mongodb.getDb().db().collection('users').updateOne(
@@ -117,7 +117,7 @@ const getUser = async (req, res) => {
     }
 
     // Return the userName
-    res.json({ userName: user.userName });
+    res.json({ userName: user.userName, email: user.email, books: user.books });
   } catch (error) {
     res.status(500).json({ message: "Server error" });
   }
