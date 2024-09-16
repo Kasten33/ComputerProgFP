@@ -57,7 +57,7 @@ const Account = () => {
   };
 
   const handleEdit = (bookId) => {
-    router.push(`/updateChapter?bookId=${bookId}`);
+    router.push({pathname: '/editChapters', query: {bookId: bookId}});
   };
 
   const handleDeleteBook = async (bookId) => {
